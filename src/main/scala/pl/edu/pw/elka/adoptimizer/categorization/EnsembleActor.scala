@@ -3,7 +3,7 @@ package pl.edu.pw.elka.adoptimizer.categorization
 import akka.actor.{ ActorRef, Props }
 import akka.pattern.ask
 import akka.util.Timeout
-import pl.edu.pw.elka.adoptimizer.categorization.ClassifierActor.{ Category, Sample, SampleSet }
+import pl.edu.pw.elka.adoptimizer.categorization.ClassifierActor.{ Category, SampleSet }
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -23,7 +23,7 @@ class EnsembleActor(classifiers: EnsemblePart*) extends ClassifierActor {
   override def classify(sample: Sample): Unit = {
     val replyTo = sender()
     val classifications = classifiers
-      .filter(_.classes.contains(sample._2))
+      .filter(_.classes.contains(sample.category))
       .map(classifier => (classifier.ref ? Classify(sample))
         .mapTo[Double]
         .map(score => (classifier.weight, score)))
@@ -36,7 +36,7 @@ class EnsembleActor(classifiers: EnsemblePart*) extends ClassifierActor {
   }
 
   override def fit(samples: SampleSet): Unit = {
-    val classes = samples.groupBy(_._2)
+    val classes = samples.groupBy(_.category)
     classifiers.foreach(classifier => {
       val filteredClasses = classes.filter(clazz => classifier.classes.contains(clazz._1))
       classifier.ref ! Train(filteredClasses.flatMap(_._2).toList)

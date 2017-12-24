@@ -1,15 +1,13 @@
 package pl.edu.pw.elka.adoptimizer.categorization
 
 import akka.actor.{ ActorRef, ActorSystem, Props }
-import akka.testkit.{ TestKit, TestProbe }
 import akka.pattern.ask
+import akka.testkit.{ TestKit, TestProbe }
 import akka.util.Timeout
-import scala.concurrent.duration._
-
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{ BeforeAndAfterAll, Matchers, WordSpecLike }
 
-import scala.util.Success
+import scala.concurrent.duration._
 
 class EnsembleActorSpec extends TestKit(ActorSystem("EnsembleSpec"))
     with WordSpecLike with Matchers with ScalaFutures with BeforeAndAfterAll {
@@ -30,15 +28,17 @@ class EnsembleActorSpec extends TestKit(ActorSystem("EnsembleSpec"))
 
   "Ensemble Actor" should {
     "split training data across classifiers" in {
-      val samples = List(("text1", "A"), ("text2", "A"), ("text3", "B"))
+      val samplesFromA = List(Sample("text1", "A"), Sample("text2", "A"))
+      val samplesFromB = List(Sample("text3", "B"))
+      val allSamples = samplesFromA ++ samplesFromB
 
-      ensembleActor ! Train(samples)
-      actorHandlingCategoryA.expectMsg(Train(List(("text1", "A"), ("text2", "A"))))
-      actorHandlingCategoryB.expectMsg(Train(List(("text3", "B"))))
+      ensembleActor ! Train(allSamples)
+      actorHandlingCategoryA.expectMsg(Train(samplesFromA))
+      actorHandlingCategoryB.expectMsg(Train(samplesFromB))
     }
 
     "return a weighted sum of scores returned by classifiers" in {
-      val sample = ("Test text", "A")
+      val sample = Sample("Test text", "A")
       val future = ensembleActor ? Classify(sample)
 
       actorHandlingCategoryA.expectMsg(Classify(sample))
