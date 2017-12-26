@@ -8,13 +8,13 @@ object ClassifierActor {
   type SampleSet = Iterable[Sample]
 }
 
-final case class Sample(content: String, category: Category)
+final case class Sample(content: Array[String], category: Category)
 
-final case class Classify(sample: Sample)
+final case class Classify(sample: String)
 final case class Train(samples: SampleSet)
 
 trait ClassifierActor extends Actor with ActorLogging {
-  def classify(sample: Sample)
+  def classify(sample: String)
   def fit(samples: SampleSet)
 
   override def receive: Receive = {
