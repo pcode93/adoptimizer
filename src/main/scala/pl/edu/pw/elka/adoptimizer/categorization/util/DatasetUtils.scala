@@ -1,4 +1,4 @@
-package pl.edu.pw.elka.adoptimizer.categorization.classifier.util
+package pl.edu.pw.elka.adoptimizer.categorization.util
 
 import pl.edu.pw.elka.adoptimizer.categorization.model.Sample
 

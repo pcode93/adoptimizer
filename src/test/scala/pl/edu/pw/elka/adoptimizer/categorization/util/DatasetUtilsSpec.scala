@@ -1,7 +1,6 @@
 package pl.edu.pw.elka.adoptimizer.categorization.util
 
 import org.scalatest.WordSpecLike
-import pl.edu.pw.elka.adoptimizer.categorization.classifier.util.DatasetUtils
 import pl.edu.pw.elka.adoptimizer.categorization.model.Sample
 
 class DatasetUtilsSpec extends WordSpecLike {
