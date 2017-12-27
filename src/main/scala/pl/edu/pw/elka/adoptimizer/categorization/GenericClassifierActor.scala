@@ -15,7 +15,7 @@ class GenericClassifierActor(classifier: TextClassifier, uuid: String)
   def fit(samples: List[Sample]): Unit = {
 
     classifier.fit(samples)
-    //saveSnapshot(classifier.save())
+    saveSnapshot(classifier.save())
   }
 
   override def receiveRecover: Receive = {
