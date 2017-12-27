@@ -1,15 +1,15 @@
 package pl.edu.pw.elka.adoptimizer.categorization
 
-import akka.actor.{ ActorRef, Props }
+import akka.actor.{ActorRef, Props}
 import akka.pattern.ask
 import akka.util.Timeout
-import pl.edu.pw.elka.adoptimizer.categorization.ClassifierActor.{ Category, SampleSet }
+import classifier.Sample
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.util.{ Failure, Success }
+import scala.util.{Failure, Success}
 
-final case class EnsemblePart(classes: List[Category], ref: ActorRef, weight: Double)
+final case class EnsemblePart(classes: List[String], ref: ActorRef, weight: Double)
 final case class EnsembleClassifierException(msg: String, cause: Throwable) extends RuntimeException
 
 object EnsembleActor {
@@ -35,7 +35,7 @@ class EnsembleActor(classifiers: EnsemblePart*) extends ClassifierActor {
     }
   }
 
-  override def fit(samples: SampleSet): Unit = {
+  override def fit(samples: Array[Sample]): Unit = {
     val classes = samples.groupBy(_.category)
     classifiers.foreach(classifier => {
       val filteredClasses = classes.filter(clazz => classifier.classes.contains(clazz._1))

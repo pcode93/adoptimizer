@@ -7,7 +7,7 @@ import scala.collection.mutable
 /**
   * Created by leszek on 26/12/2017.
   */
-case class BayesianKnowledgeBase() extends KnowledgeBase {
+case class BayesianKnowledgeBase(tk: Tokenizer) extends KnowledgeBase {
   var n = 0
   var c = 0
   var d = 0
@@ -16,7 +16,7 @@ case class BayesianKnowledgeBase() extends KnowledgeBase {
   var logPriors: mutable.HashMap[String, Double] = mutable.HashMap[String, Double]()
   var logLikelihoods: mutable.HashMap[String, mutable.HashMap[String, Double]] = mutable.HashMap[String, mutable.HashMap[String, Double]]()
 
-  var tokenizer: Tokenizer = new SimpleStemmedTokenizer()
+  var tokenizer: Tokenizer = tk
 
   private def preprocessData(samples: Array[Sample]): List[Document] = {
     var dataset: mutable.MutableList[Document] = mutable.MutableList()
