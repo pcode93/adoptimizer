@@ -1,10 +1,12 @@
-package classifier
+package pl.edu.pw.elka.adoptimizer.categorization.tokenizer
+
+import pl.edu.pw.elka.adoptimizer.categorization.model.Document
 
 import scala.collection.mutable
 
 /**
-  * Created by leszek on 26/12/2017.
-  */
+ * Created by leszek on 26/12/2017.
+ */
 case class SimpleTokenizer() extends Tokenizer {
   protected def preprocess(text: String): String = {
     return text.replaceAll("\\p{P}", " ").replaceAll("\\s+", " ").toLowerCase()
@@ -18,11 +20,11 @@ case class SimpleTokenizer() extends Tokenizer {
     val counts = mutable.Map[String, Int]()
     var counter: Option[Int] = null
 
-    for(key <- keywords) {
+    for (key <- keywords) {
       counter = counts.get(key)
       if (counter.isEmpty) { counter = Some(0) }
 
-      counts.put(key, counter.get+1)
+      counts.put(key, counter.get + 1)
     }
 
     return counts

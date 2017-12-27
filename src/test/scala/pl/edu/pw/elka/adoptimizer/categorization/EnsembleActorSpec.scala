@@ -6,6 +6,8 @@ import akka.testkit.{ TestKit, TestProbe }
 import akka.util.Timeout
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{ BeforeAndAfterAll, Matchers, WordSpecLike }
+import pl.edu.pw.elka.adoptimizer.categorization.model.Message.{ Classify, Train }
+import pl.edu.pw.elka.adoptimizer.categorization.model.Sample
 
 import scala.concurrent.duration._
 

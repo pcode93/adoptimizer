@@ -1,12 +1,13 @@
-package classifier.bayesian
+package pl.edu.pw.elka.adoptimizer.categorization.classifier.bayes
 
-import classifier._
+import pl.edu.pw.elka.adoptimizer.categorization.model.{ Document, KnowledgeBase, Sample }
+import pl.edu.pw.elka.adoptimizer.categorization.tokenizer.Tokenizer
 
 import scala.collection.mutable
 
 /**
-  * Created by leszek on 26/12/2017.
-  */
+ * Created by leszek on 26/12/2017.
+ */
 case class BayesianKnowledgeBase(tk: Tokenizer) extends KnowledgeBase {
   var n = 0
   var c = 0
@@ -18,7 +19,7 @@ case class BayesianKnowledgeBase(tk: Tokenizer) extends KnowledgeBase {
 
   var tokenizer: Tokenizer = tk
 
-  private def preprocessData(samples: Array[Sample]): List[Document] = {
+  private def preprocessData(samples: List[Sample]): List[Document] = {
     var dataset: mutable.MutableList[Document] = mutable.MutableList()
     var category: String = ""
 
@@ -46,7 +47,7 @@ case class BayesianKnowledgeBase(tk: Tokenizer) extends KnowledgeBase {
     return stats
   }
 
-  override def train(samples: Array[Sample]): Unit = {
+  override def train(samples: List[Sample]): Unit = {
     val dataset = preprocessData(samples)
 
     val featureStats = selectFeatures(dataset)

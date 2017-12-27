@@ -1,12 +1,12 @@
-package classifier.bayesian
+package pl.edu.pw.elka.adoptimizer.categorization.classifier.bayes
 
-import classifier.Document
+import pl.edu.pw.elka.adoptimizer.categorization.model.Document
 
 import scala.collection.mutable
 
 /**
-  * Created by leszek on 26/12/2017.
-  */
+ * Created by leszek on 26/12/2017.
+ */
 case class FeatureExtraction() {
   def extractFeatureStats(dataset: List[Document]): FeatureStats = {
     val stats = FeatureStats()
@@ -72,7 +72,6 @@ case class FeatureExtraction() {
       }
 
       N0dot = stats.n - N1dot
-
 
       for (entry2 <- categoryList.toSeq) {
         category = entry2._1

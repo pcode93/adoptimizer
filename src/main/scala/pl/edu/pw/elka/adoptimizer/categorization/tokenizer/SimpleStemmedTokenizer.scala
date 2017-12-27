@@ -1,10 +1,11 @@
-package classifier
+package pl.edu.pw.elka.adoptimizer.categorization.tokenizer
 
 import classifier.stemmer.Porter2Stemmer
+import pl.edu.pw.elka.adoptimizer.categorization.model.Document
 
 /**
-  * Created by leszek on 27/12/2017.
-  */
+ * Created by leszek on 27/12/2017.
+ */
 class SimpleStemmedTokenizer extends SimpleTokenizer {
   val stemmer = new Porter2Stemmer()
 

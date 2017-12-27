@@ -9,11 +9,13 @@ lazy val root = (project in file(".")).
     )),
     name := "adoptimizer",
     libraryDependencies ++= Seq(
-      "com.typesafe.akka" %% "akka-http"            % akkaHttpVersion,
-      "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
-      "com.typesafe.akka" %% "akka-http-xml"        % akkaHttpVersion,
-      "com.typesafe.akka" %% "akka-stream"          % akkaVersion,
-      "org.jsoup"         % "jsoup"                 % "1.11.2",
+      "com.typesafe.akka"  %% "akka-http"            % akkaHttpVersion,
+      "com.typesafe.akka"  %% "akka-http-spray-json" % akkaHttpVersion,
+      "com.typesafe.akka"  %% "akka-http-xml"        % akkaHttpVersion,
+      "com.typesafe.akka"  %% "akka-stream"          % akkaVersion,
+      "com.typesafe.akka"  %% "akka-persistence"     % akkaVersion,
+      "org.jsoup"          % "jsoup"                 % "1.11.2",
+      "nz.ac.waikato.cms.weka" % "weka-stable"       % "3.8.0",
 
       "com.typesafe.akka" %% "akka-http-testkit"    % akkaHttpVersion % Test,
       "com.typesafe.akka" %% "akka-testkit"         % akkaVersion     % Test,
