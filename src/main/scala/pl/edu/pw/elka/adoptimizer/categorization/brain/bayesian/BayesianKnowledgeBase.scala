@@ -3,7 +3,6 @@ package classifier.bayesian
 import classifier._
 
 import scala.collection.mutable
-import scala.collection.mutable.{Iterable, MutableList}
 
 /**
   * Created by leszek on 26/12/2017.
@@ -13,83 +12,64 @@ case class BayesianKnowledgeBase() extends KnowledgeBase {
   var c = 0
   var d = 0
 
-  var chisquareCriticalValue = 6.63
-  var logPriors = mutable.HashMap[String, Double]()
-  var logLikelihoods = mutable.HashMap[String, mutable.HashMap[String, Double]]()
+  var chisquareCriticalValue: Double = 6.63
+  var logPriors: mutable.HashMap[String, Double] = mutable.HashMap[String, Double]()
+  var logLikelihoods: mutable.HashMap[String, mutable.HashMap[String, Double]] = mutable.HashMap[String, mutable.HashMap[String, Double]]()
 
-  var tokenizer: Tokenizer = SimpleTokenizer()
+  var tokenizer: Tokenizer = new SimpleStemmedTokenizer()
 
   private def preprocessData(samples: Array[Sample]): List[Document] = {
-    var dataset: MutableList[Document] = MutableList()
+    var dataset: mutable.MutableList[Document] = mutable.MutableList()
     var category: String = ""
 
     for (sample <- samples) {
       category = sample.category
-      var examples = sample.content
+      val example = sample.content
 
-      for (example <- examples) {
-        var doc = tokenizer.tokenize(example)
-        doc.category = category
-        dataset += doc
-      }
+      var doc = tokenizer.tokenize(example)
+      doc.category = category
+      dataset += doc
     }
     return dataset.toList
   }
 
   private def selectFeatures(dataset: List[Document]): FeatureStats = {
-    var extractor = FeatureExtraction()
+    val extractor = FeatureExtraction()
 
-    var stats = extractor.extractFeatureStats(dataset)
+    val stats = extractor.extractFeatureStats(dataset)
 
-    var selectedFeatures = extractor.chisquare(stats, chisquareCriticalValue)
+    val selectedFeatures = extractor.chisquare(stats, chisquareCriticalValue)
 
-    var filteredFeatures = stats.featureCategoryJointCount.filter( x => selectedFeatures.contains(x._1) )
+    val filteredFeatures = stats.featureCategoryJointCount.filter(x => selectedFeatures.contains(x._1))
     stats.featureCategoryJointCount = filteredFeatures
 
     return stats
   }
 
   override def train(samples: Array[Sample]): Unit = {
-    var dataset = preprocessData(samples)
+    val dataset = preprocessData(samples)
 
-    var featureStats = selectFeatures(dataset)
+    val featureStats = selectFeatures(dataset)
 
-    n = featureStats.n
-    d = featureStats.featureCategoryJointCount.size
+    n += featureStats.n
+    d += featureStats.featureCategoryJointCount.size
 
-//    if (categoryPriors == null) {
-      c = featureStats.categoryCounts.size
-      logPriors = mutable.HashMap()
+    c += featureStats.categoryCounts.size
 
-      for (category <- featureStats.categoryCounts) {
-        var cat = category._1
-        var count = category._2
+    for (category <- featureStats.categoryCounts) {
+      val cat = category._1
+      val count = category._2
 
-        logPriors.put(cat, Math.log(count / n))
-      }
-//    }
-//    else {
-//      c = categoryPriors.size
-//
-//      if (c != featureStats.categoryCounts.size) {
-//        throw new Exception()
-//      }
-//
-//      for (cat <- categoryPriors) {
-//        var category = cat._1
-//        var priorProbability = cat._2
-//
-//        logPriors.put(category, Math.log(priorProbability))
-//      }
-//    }
+      logPriors.put(cat, Math.log(count / n))
+    }
 
-    var featureOccurrencesInCategory = mutable.HashMap[String, Double]()
+    val featureOccurrencesInCategory = mutable.HashMap[String, Double]()
 
     for (category <- logPriors.keys) {
       var featureOccSum = 0.0
 
       for (categoryListOccurences <- featureStats.featureCategoryJointCount.values) {
-        var occurrences = categoryListOccurences.get(category)
+        val occurrences = categoryListOccurences.get(category)
         if (occurrences.isDefined)
           featureOccSum += occurrences.get
       }
@@ -97,16 +77,15 @@ case class BayesianKnowledgeBase() extends KnowledgeBase {
       featureOccurrencesInCategory.put(category, featureOccSum)
     }
 
-
     for (category <- logPriors.keys) {
       for (entry <- featureStats.featureCategoryJointCount) {
-        var feature = entry._1
-        var featureCategoryCounts = entry._2
+        val feature = entry._1
+        val featureCategoryCounts = entry._2
 
         var count = featureCategoryCounts.get(category)
         if (count.isEmpty) { count = Some(0) }
 
-        var logLikelihood = Math.log((count.get+1) / (featureOccurrencesInCategory(category) + d))
+        val logLikelihood = Math.log((count.get + 1) / (featureOccurrencesInCategory(category) + d))
         if (!logLikelihoods.contains(feature))
           logLikelihoods.put(feature, mutable.HashMap[String, Double]())
 
