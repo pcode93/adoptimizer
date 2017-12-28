@@ -3,6 +3,7 @@ package pl.edu.pw.elka.adoptimizer.parsing
 import scala.collection.JavaConverters._
 import akka.actor.{ Actor, Props }
 import org.jsoup.Jsoup
+import pl.edu.pw.elka.adoptimizer.adinsertion.AdInserterActor.{ HtmlWithAd, ParsedParagraphs }
 import pl.edu.pw.elka.adoptimizer.parsing.WebsiteParserActor.{ AppendContentToParagraph, ExtractParagraphs, Paragraph }
 
 object WebsiteParserActor {
@@ -15,8 +16,8 @@ object WebsiteParserActor {
 
 class WebsiteParserActor extends Actor {
 
-  private def getParagraphs(html: String): List[Paragraph] =
-    Jsoup.parse(html).select("p").asScala.map(_.text()).toList
+  private def getParagraphs(html: String) =
+    ParsedParagraphs(paragraphs = Jsoup.parse(html).select("p").asScala.map(_.text()).toList)
 
   private def insertAfterParagraph(html: String, paragraphToInsertAfter: String, contentToInsert: String) = {
     val doc = Jsoup.parse(html)
@@ -27,7 +28,7 @@ class WebsiteParserActor extends Actor {
         .attr("style", "display: block")
         .appendText(contentToInsert))
 
-    doc.html()
+    HtmlWithAd(htmlWithAd = doc.html())
   }
 
   override def receive: Receive = {

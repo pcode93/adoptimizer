@@ -8,6 +8,7 @@ import org.scalatest.concurrent.ScalaFutures
 import pl.edu.pw.elka.adoptimizer.parsing.WebsiteParserActor.{ AppendContentToParagraph, ExtractParagraphs }
 import akka.pattern.ask
 import org.scalatest.time.{ Millis, Seconds, Span }
+import pl.edu.pw.elka.adoptimizer.adinsertion.AdInserterActor.{ HtmlWithAd, ParsedParagraphs }
 
 import scala.concurrent.duration._
 
@@ -28,7 +29,7 @@ class WebsiteParserActorSpec extends TestKit(ActorSystem("ParserSpec"))
   "Website parser" should {
     "return all paragraphs for website" in {
       whenReady(parserActor ? ExtractParagraphs(html)) { result =>
-        result shouldBe List("Paragraph 1", "Paragraph 2")
+        result shouldBe ParsedParagraphs(List("Paragraph 1", "Paragraph 2"))
       }
     }
 
@@ -36,7 +37,7 @@ class WebsiteParserActorSpec extends TestKit(ActorSystem("ParserSpec"))
       val expectedHtml = "<html><head></head><body><p>Paragraph 1" +
         "<b style=\"display: block\">test</b></p><img><p>Paragraph 2</p></body></html>"
       whenReady(parserActor ? AppendContentToParagraph(html, "Paragraph 1", "test")) { result =>
-        result.toString.split("\n").map(_.trim).reduce(_ + _) shouldBe expectedHtml
+        result.toString.split("\n").map(_.trim).reduce(_ + _) shouldBe HtmlWithAd(expectedHtml).toString()
       }
     }
   }
