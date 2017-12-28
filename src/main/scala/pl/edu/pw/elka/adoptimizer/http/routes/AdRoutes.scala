@@ -24,7 +24,7 @@ object AdRoutes extends JsonSupport {
   def routes(adActor: ActorRef): Route =
     pathPrefix("ad") {
       pathEnd {
-        get {
+        post {
           entity(as[AdForWebsite]) { adForWebsite =>
             val websiteWithAd: Future[String] =
               (adActor ? InsertAd(adForWebsite.websiteHtml, adForWebsite.ad)).mapTo[String]

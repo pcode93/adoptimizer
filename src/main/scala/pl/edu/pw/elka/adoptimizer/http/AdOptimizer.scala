@@ -6,7 +6,9 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.stream.ActorMaterializer
 import pl.edu.pw.elka.adoptimizer.api.{ AdApiActor, SystemApiActor }
+import pl.edu.pw.elka.adoptimizer.categorization.EnsembleActor
 import pl.edu.pw.elka.adoptimizer.http.routes.{ AdRoutes, SystemRoutes }
+import pl.edu.pw.elka.adoptimizer.parsing.WebsiteParserActor
 
 import scala.concurrent.{ ExecutionContext, Future }
 import scala.io.StdIn
