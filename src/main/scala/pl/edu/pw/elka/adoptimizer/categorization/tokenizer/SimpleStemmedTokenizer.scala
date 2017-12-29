@@ -3,22 +3,21 @@ package pl.edu.pw.elka.adoptimizer.categorization.tokenizer
 import classifier.stemmer.Porter2Stemmer
 import pl.edu.pw.elka.adoptimizer.categorization.model.Document
 
-/**
- * Created by leszek on 27/12/2017.
- */
 class SimpleStemmedTokenizer extends SimpleTokenizer {
   val stemmer = new Porter2Stemmer()
 
+  protected def stemKeywords(keywords: Array[String]): Array[String] = {
+    return keywords.map(x => stemmer.stem(x))
+  }
+
   override def tokenize(text: String): Document = {
     val preprocessedText = preprocess(text)
-    var keywords = extractKeywords(preprocessedText)
-
-    for (i <- 0 to keywords.length - 1) {
-      keywords(i) = stemmer.stem(keywords(i))
-    }
+    val keywords = extractKeywords(preprocessedText)
+    val reducedKeywords = removeStopwords(keywords)
+    val stemmedKeywords = stemKeywords(reducedKeywords)
 
     val document = Document()
-    document.tokens = getKeywordsCount(keywords)
+    document.tokens = getKeywordsCount(stemmedKeywords)
 
     return document
   }

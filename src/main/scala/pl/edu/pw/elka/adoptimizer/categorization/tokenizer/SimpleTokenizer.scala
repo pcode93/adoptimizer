@@ -1,12 +1,10 @@
 package pl.edu.pw.elka.adoptimizer.categorization.tokenizer
 
 import pl.edu.pw.elka.adoptimizer.categorization.model.Document
+import pl.edu.pw.elka.adoptimizer.categorization.preprocessing.Stopwords
 
 import scala.collection.mutable
 
-/**
- * Created by leszek on 26/12/2017.
- */
 case class SimpleTokenizer() extends Tokenizer {
   protected def preprocess(text: String): String = {
     return text.replaceAll("\\p{P}", " ").replaceAll("\\s+", " ").toLowerCase()
@@ -14,6 +12,10 @@ case class SimpleTokenizer() extends Tokenizer {
 
   protected def extractKeywords(string: String): Array[String] = {
     return string.split(" ")
+  }
+
+  protected def removeStopwords(keywords: Array[String]): Array[String] = {
+    return keywords.filter(x => !Stopwords.stopwords.contains(x))
   }
 
   protected def getKeywordsCount(keywords: Array[String]): mutable.Map[String, Int] = {
@@ -33,9 +35,10 @@ case class SimpleTokenizer() extends Tokenizer {
   def tokenize(text: String): Document = {
     val preprocessedText = preprocess(text)
     val keywords = extractKeywords(preprocessedText)
+    val reducedKeywords = removeStopwords(keywords)
 
     val document = Document()
-    document.tokens = getKeywordsCount(keywords)
+    document.tokens = getKeywordsCount(reducedKeywords)
 
     return document
   }
