@@ -1,5 +1,7 @@
 package pl.edu.pw.elka.adoptimizer.categorization.bayes
 
+import java.io.File
+
 import classifier.stemmer.Porter2Stemmer
 import org.scalatest.{ BeforeAndAfterAll, Matchers, WordSpec }
 import pl.edu.pw.elka.adoptimizer.categorization.classifier.bayes.BayesianKnowledgeBase
@@ -16,15 +18,16 @@ import scala.io.Source
 class BayesianKnowledgeBaseSpec extends WordSpec with Matchers with BeforeAndAfterAll {
   var testedKB = BayesianKnowledgeBase(new SimpleStemmedTokenizer())
   var samples = mutable.MutableList[Sample]()
+  val testFileName = "testSaveBase"
 
-  override protected def beforeAll(): Unit = {
-    val lines = Source.fromResource("trainingData/20ng-train-all-terms.txt").getLines()
-    lines.foreach(line => {
-      val split = line.split("\t")
-      samples += Sample(split(1), split(0))
-    })
-    testedKB.train(samples.toList)
-  }
+    override protected def beforeAll(): Unit = {
+      val lines = Source.fromResource("trainingData/20ng-train-all-terms.txt").getLines()
+      lines.foreach(line => {
+        val split = line.split("\t")
+        samples += Sample(split(1), split(0))
+      })
+      testedKB.train(samples.toList)
+    }
 
   "BayesianKnowledgeBase" should {
     "returns 20 categories when trained with sample set" in {
@@ -36,6 +39,19 @@ class BayesianKnowledgeBaseSpec extends WordSpec with Matchers with BeforeAndAft
       val stemmedStopwords = Stopwords.stopwords.mapConserve(x => new Porter2Stemmer().stem(x))
       stemmedStopwords.foreach(x => containsStopwords = testedKB.logLikelihoods.keySet.contains(x))
       assert(!containsStopwords)
+    }
+
+    "save prepared knowledge to file" in {
+      testedKB.save(testFileName)
+      assert(new File(testFileName).exists())
+    }
+
+    "load knowledge from file" in {
+      testedKB.logPriors.clear()
+      testedKB.logLikelihoods.clear()
+
+      testedKB.load(testFileName)
+      assert(testedKB.logPriors.size > 0 && testedKB.logLikelihoods.size > 0)
     }
   }
 }
