@@ -8,7 +8,7 @@ import weka.core.DenseInstance
 class LogisticClassifier extends TextClassifier {
   val lr = new Logistic()
 
-  override def classify(sample: Sample): Double = ???
+  override def classify(sample: Sample): Map[String, Double] = ???
 
   override def fit(samples: List[Sample]): Unit = ???
 

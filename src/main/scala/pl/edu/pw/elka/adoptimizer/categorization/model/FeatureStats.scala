@@ -1,4 +1,4 @@
-package pl.edu.pw.elka.adoptimizer.categorization.classifier.bayes
+package pl.edu.pw.elka.adoptimizer.categorization.model
 
 import scala.collection.mutable
 import scala.collection.mutable.Map
