@@ -1,17 +1,18 @@
 package pl.edu.pw.elka.adoptimizer.categorization.classifier.bayes
 
-import pl.edu.pw.elka.adoptimizer.categorization.model.{ Document, KnowledgeBase, Sample }
+import pl.edu.pw.elka.adoptimizer.categorization.model.{ Document, FeatureStats, KnowledgeBase, Sample }
 import pl.edu.pw.elka.adoptimizer.categorization.tokenizer.Tokenizer
 
 import scala.collection.mutable
+import scala.math._
 
 /**
  * Created by leszek on 26/12/2017.
  */
 case class BayesianKnowledgeBase(tk: Tokenizer) extends KnowledgeBase {
-  var n = 0
-  var c = 0
-  var d = 0
+  var n: Double = 0
+  var c: Double = 0
+  var d: Double = 0
 
   var chisquareCriticalValue: Double = 6.63
   var logPriors: mutable.HashMap[String, Double] = mutable.HashMap[String, Double]()
@@ -61,7 +62,7 @@ case class BayesianKnowledgeBase(tk: Tokenizer) extends KnowledgeBase {
       val cat = category._1
       val count = category._2
 
-      logPriors.put(cat, Math.log(count / n))
+      logPriors.put(cat, log(count / n))
     }
 
     val featureOccurrencesInCategory = mutable.HashMap[String, Double]()
