@@ -7,7 +7,7 @@ import pl.edu.pw.elka.adoptimizer.categorization.model.Sample
 import pl.edu.pw.elka.adoptimizer.categorization.tokenizer.NgramTokenizer
 import pl.edu.pw.elka.adoptimizer.categorization.vectorizer.TfIdfVectorizer
 import weka.classifiers.functions.Logistic
-import weka.core.{Attribute, DenseInstance, Instances}
+import weka.core.{ Attribute, DenseInstance, Instances }
 
 import scala.collection.JavaConverters._
 
