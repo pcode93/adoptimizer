@@ -1,6 +1,6 @@
 package pl.edu.pw.elka.adoptimizer.categorization.tokenizer
 
-class TfIdfTransformer(corpus: Seq[Map[String, Int]]) {
+class TfIdfTransformer(corpus: Seq[Map[String, Int]]) extends Serializable {
   private val inverseDocFrequency = corpus.flatMap(_.map(ngram => (ngram._1, ngram._2)))
     .groupBy(_._1).map(ngram => ngram._1 -> (ngram._2.length + 1))
 

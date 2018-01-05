@@ -9,56 +9,59 @@ import pl.edu.pw.elka.adoptimizer.categorization.vectorizer.TfIdfVectorizer
 import weka.classifiers.functions.Logistic
 import weka.core.{Attribute, DenseInstance, Instances}
 
+import scala.collection.JavaConverters._
+
 class LogisticClassifier(maxNgrams: Int = 1) extends TextClassifier {
-  private var coeffs: Array[Array[Double]] = _
+  private var lr: Logistic = _
   private var tfIdfVectorizer: TfIdfVectorizer = _
+  private var classIndex: Attribute = _
 
   override def classify(sample: Sample): Double = {
-    val len = coeffs.length
-    val prob = new Array[Double](len)
-    val v = new Array[Double](len)
-    val counts = tfIdfVectorizer.vectorize(sample.content).toArray
+    val features = tfIdfVectorizer.vectorize(sample.content).toArray
+    val instance = new DenseInstance(1, features)
 
-    (1 until (len - 1)).foreach(j => (1 until coeffs(0).length).foreach(k => v(j) += coeffs(k)(j) * counts(k)))
-    v(len - 1) = 0
-
-    (1 until len).foreach(m => {
-      var sum = 0D
-      (1 until (len - 1)).foreach(n => sum += Math.exp(v(n) - v(m)))
-
-      prob(m) = 1 / (sum + Math.exp(-v(m)))
-    })
-
-    prob(0)
+    lr.distributionForInstance(instance)
+      .zipWithIndex
+      .find(_._2 == classIndex.indexOfValue(sample.category))
+      .map(_._1).getOrElse(0D)
   }
 
   override def fit(samples: List[Sample]): Unit = {
-    val lr = new Logistic()
+    lr = new Logistic()
     tfIdfVectorizer = new TfIdfVectorizer(samples.map(_.content), NgramTokenizer(1 to maxNgrams))
 
-    val trainingSet = samples
+    val numFeatures = tfIdfVectorizer.numFeatures + 1
+    val labels = samples.map(_.category).distinct
+
+    val attrInfo = new util.ArrayList[Attribute](numFeatures)
+    (1 to tfIdfVectorizer.numFeatures).foreach(attr => attrInfo.add(new Attribute(attr.toString)))
+    attrInfo.add(new Attribute("label", labels.asJava))
+
+    val instances = new Instances("training set", attrInfo, samples.length)
+    instances.setClassIndex(instances.numAttributes() - 1)
+
+    samples
       .map(sample => (tfIdfVectorizer.vectorize(sample.content), sample.category))
-      .map(sample => {
-        val instance = new DenseInstance(tfIdfVectorizer.numFeatures)
+      .foreach(sample => {
+        val instance = new DenseInstance(numFeatures)
 
         sample._1.zipWithIndex.foreach(weight => instance.setValue(weight._2, weight._1))
-        instance.setClassValue(sample._2)
+        instance.setValue(numFeatures - 1, sample._2)
 
-        instance
+        instances.add(instance)
       })
 
-    val attrInfo = new util.ArrayList[Attribute]()
-    (1 to tfIdfVectorizer.numFeatures).foreach(attr => attrInfo.add(new Attribute(attr.toString)))
-
-    lr.buildClassifier(new Instances("Texts", attrInfo, trainingSet.length))
-    coeffs = lr.coefficients()
+    lr.buildClassifier(instances)
+    classIndex = instances.classAttribute()
   }
 
-  override def save(): Any = (coeffs, tfIdfVectorizer)
+  override def save(): Any = (lr, tfIdfVectorizer, classIndex)
 
   override def load(state: Any): Unit = {
-    val params = state.asInstanceOf[(Array[Array[Double]], TfIdfVectorizer)]
-    coeffs = params._1
+    val params = state.asInstanceOf[(Logistic, TfIdfVectorizer, Attribute)]
+
+    lr = params._1
     tfIdfVectorizer = params._2
+    classIndex = params._3
   }
 }

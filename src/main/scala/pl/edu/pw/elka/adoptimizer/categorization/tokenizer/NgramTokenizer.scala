@@ -1,6 +1,6 @@
 package pl.edu.pw.elka.adoptimizer.categorization.tokenizer
 
-case class NgramTokenizer(ngramRange: Range, separator: String = " ") {
+case class NgramTokenizer(ngramRange: Range, separator: String = " ") extends Serializable {
 
   protected def ngrams(tokens: List[String]): Map[String, Int] = {
     def ngramsIter(n: Int, tokens: List[String], tokensLeft: Int, result: List[String] = List()): List[String] = {
