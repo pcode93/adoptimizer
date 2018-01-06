@@ -13,7 +13,6 @@ class GenericClassifierActor(classifier: TextClassifier, uuid: String)
     sender ! classifier.classify(sample)
 
   def fit(samples: List[Sample]): Unit = {
-
     classifier.fit(samples)
     saveSnapshot(classifier.save())
   }
