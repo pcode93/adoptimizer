@@ -12,7 +12,7 @@ class NgramTokenizerSpec extends WordSpecLike {
         "1 2 1" -> 1, "2 1 3" -> 1, "1 3 1" -> 1, "3 1 2" -> 1
       )
 
-      val ngrams = NgramTokenizer(1 to 3).tokenize(text)
+      val ngrams = new SimpleNgramTokenizer(1 to 3).tokenize(text)
 
       assert(ngrams == expectedNgrams)
     }

@@ -13,9 +13,9 @@ package classifier.stemmer
  *
  */
 
-import scala.io.Source
+import pl.edu.pw.elka.adoptimizer.categorization.stemmer.Stemmer
 
-class Porter2Stemmer {
+class Porter2Stemmer extends Stemmer {
   private var b = ""
 
   private def cons(i: Int): Boolean = {
@@ -202,7 +202,7 @@ class Porter2Stemmer {
     }
   }
 
-  def stem(word: String): String = {
+  override def stem(word: String): String = {
     b = word
 
     if (b.length > 2) {

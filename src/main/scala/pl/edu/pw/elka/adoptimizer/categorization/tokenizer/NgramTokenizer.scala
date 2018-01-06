@@ -1,6 +1,9 @@
 package pl.edu.pw.elka.adoptimizer.categorization.tokenizer
 
-case class NgramTokenizer(ngramRange: Range, separator: String = " ") extends Serializable {
+import classifier.stemmer.Porter2Stemmer
+import pl.edu.pw.elka.adoptimizer.categorization.stemmer.Stemmer
+
+abstract class NgramTokenizer(ngramRange: Range, separator: String, stopwords: List[String]) extends Serializable {
 
   protected def ngrams(tokens: List[String]): Map[String, Int] = {
     def ngramsIter(n: Int, tokens: List[String], tokensLeft: Int, result: List[String] = List()): List[String] = {
@@ -13,7 +16,23 @@ case class NgramTokenizer(ngramRange: Range, separator: String = " ") extends Se
       .map(ngram => ngram._1 -> ngram._2.length)
   }
 
-  def tokenize(text: String): Map[String, Int] = {
-    ngrams(text.split(separator).toList)
-  }
+  protected def unigrams(text: String): List[String] = text.split(separator).toList
+  protected def filterStopwords(unigrams: List[String]): List[String] = unigrams.filterNot(stopwords.contains(_))
+
+  def tokenize(text: String): Map[String, Int]
 }
+
+class SimpleNgramTokenizer(ngramRange: Range, separator: String = " ", stopwords: List[String] = List())
+    extends NgramTokenizer(ngramRange, separator, stopwords) {
+  override def tokenize(text: String): Map[String, Int] = ngrams(filterStopwords(unigrams(text)))
+}
+
+class StemmedNgramTokenizer(ngramRange: Range, separator: String = " ",
+  stopwords: List[String] = List(), stemmer: Stemmer = new Porter2Stemmer())
+    extends NgramTokenizer(ngramRange, separator, stopwords) {
+  override def tokenize(text: String): Map[String, Int] =
+    ngrams(filterStopwords(unigrams(text)).map(stemmer.stem))
+}
+
+class StemmedUnigramTokenizer(stopwords: List[String] = List())
+  extends StemmedNgramTokenizer(1 to 1, stopwords = stopwords)
