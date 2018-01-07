@@ -1,7 +1,6 @@
 package pl.edu.pw.elka.adoptimizer.api
 
-import akka.actor.{ Actor, ActorLogging, Props }
-import pl.edu.pw.elka.adoptimizer.adinsertion.AdInserterActor
+import akka.actor.{ Actor, ActorLogging, ActorRef, Props }
 import pl.edu.pw.elka.adoptimizer.domain.Ad
 
 object AdApiActor {
@@ -10,12 +9,11 @@ object AdApiActor {
   def props: Props = Props[AdApiActor]
 }
 
-class AdApiActor extends Actor with ActorLogging {
+class AdApiActor(insertionActors: ActorRef) extends Actor with ActorLogging {
   import AdApiActor._
 
   def receive: Receive = {
     case InsertAd(website, ad) =>
-      val inserterActor = context.actorOf(AdInserterActor.props)
-      inserterActor forward InsertAd(website, ad)
+      insertionActors forward InsertAd(website, ad)
   }
 }
