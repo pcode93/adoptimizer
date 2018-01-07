@@ -62,13 +62,20 @@ class LogisticClassifier(var vectorizer: Vectorizer) extends TextClassifier {
       */
     //val vectorized = map2vec(samples.head, List(), samples.tail)
     val vectorized = new Array[(List[Double], String)](samples.length)
-    var i = 0
+    //var i = 0
     for (sample <- samples) {
-      vectorized.update(i, (vectorizer.vectorize(textFilter.filter(sample.content)), sample.category))
-      i += 1
+      val vec = vectorizer.vectorize(textFilter.filter(sample.content.toLowerCase))
+      val instance = new DenseInstance(numFeatures)
+      instance.setDataset(instances)
+
+      vec.zipWithIndex.foreach(weight => instance.setValue(weight._2, weight._1))
+      instance.setValue(numFeatures - 1, sample.category)
+
+      instances.add(instance)
+      //i += 1
     }
     debug("Done")
-
+    /*
     debug("Creating dataset")
     vectorized.foreach(sample => {
       val instance = new DenseInstance(numFeatures)
@@ -80,7 +87,7 @@ class LogisticClassifier(var vectorizer: Vectorizer) extends TextClassifier {
       instances.add(instance)
     })
     debug("Done")
-
+    */
     debug("Building classifier")
     lr.buildClassifier(instances)
     debug("Done")

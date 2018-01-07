@@ -23,8 +23,8 @@ class TfIdfVectorizer(
     })
     result.toList
     */
-    //features.map(counts.getOrElse(_, defaultCount))
-    List()
+    features.map(counts.getOrElse(_, defaultCount))
+    //List()
   }
 
   var numFeatures: Int = 0
