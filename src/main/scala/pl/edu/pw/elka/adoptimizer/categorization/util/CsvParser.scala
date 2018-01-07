@@ -8,7 +8,7 @@ object CsvParser {
       val parts = line.split(separator)
       val content = parts.take(parts.length - 1).mkString(separator)
 
-      Sample(StringContext.treatEscapes(content), parts(parts.length - 1))
+      Sample(content.replace("\\n", "\n").replace("\\r", "\r"), parts(parts.length - 1))
     })
   }
 }

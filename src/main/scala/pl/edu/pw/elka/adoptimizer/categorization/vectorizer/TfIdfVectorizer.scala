@@ -6,6 +6,7 @@ class TfIdfVectorizer(
     tokenizer: NgramTokenizer = new StemmedUnigramTokenizer(),
     minCount: Int = 0, maxCount: Int = Int.MaxValue
 ) extends Vectorizer {
+  private val defaultCount = 0D
 
   private var ngrams: List[Map[String, Int]] = _
   private var features: List[String] = _
@@ -13,7 +14,7 @@ class TfIdfVectorizer(
 
   override def vectorize(text: String): List[Double] = {
     val counts = transformer.tfidf(tokenizer.tokenize(text))
-    features.map(counts.getOrElse(_, 0D))
+    features.map(counts.getOrElse(_, defaultCount))
   }
 
   var numFeatures: Int = 0
