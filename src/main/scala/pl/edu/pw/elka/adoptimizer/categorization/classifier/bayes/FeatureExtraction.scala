@@ -1,6 +1,6 @@
 package pl.edu.pw.elka.adoptimizer.categorization.classifier.bayes
 
-import pl.edu.pw.elka.adoptimizer.categorization.model.Document
+import pl.edu.pw.elka.adoptimizer.categorization.model.{ Document, FeatureStats }
 
 import scala.collection.mutable
 
@@ -40,7 +40,7 @@ case class FeatureExtraction() {
         if (featureCategoryCount.isEmpty)
           featureCategoryCount = Some(0)
 
-        stats.featureCategoryJointCount.get(feature).get.put(category, featureCategoryCount.get + 1)
+        stats.featureCategoryJointCount(feature).put(category, featureCategoryCount.get + 1)
       }
     }
     return stats

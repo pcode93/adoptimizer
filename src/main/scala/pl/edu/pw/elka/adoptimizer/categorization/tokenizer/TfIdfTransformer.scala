@@ -5,7 +5,7 @@ class TfIdfTransformer(corpus: Seq[Map[String, Int]]) extends Serializable {
     .groupBy(_._1).map(ngram => ngram._1 -> ngram._2.length)
 
   def tfidf(ngrams: Map[String, Int]): Map[String, Double] =
-    ngrams.map(ngram => ngram._1 -> ((ngram._2.toDouble + 1D) / (inverseDocFrequency.getOrElse(ngram._1, 0) + 1)))
+    ngrams.map(ngram => ngram._1 -> ((ngram._2 + 1).toDouble / (inverseDocFrequency.getOrElse(ngram._1, 0) + 1)))
 
   def tfidf(dataset: Seq[Map[String, Int]]): Seq[Map[String, Double]] = dataset.map(tfidf)
 }

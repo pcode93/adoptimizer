@@ -11,6 +11,7 @@ import weka.classifiers.functions.Logistic
 import weka.core.{ Attribute, DenseInstance, Instances }
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 class LogisticClassifier(var vectorizer: Vectorizer) extends TextClassifier {
   private val textFilter = ComplexTextFilter(WhitespaceConvertingFilter(), TextCleaningFilter())
@@ -21,21 +22,21 @@ class LogisticClassifier(var vectorizer: Vectorizer) extends TextClassifier {
   private def debug(text: String) =
     println(s"${new Date()}: $text")
 
-  override def classify(sample: Sample): Double = {
-    val features = vectorizer.vectorize(textFilter.filter(sample.content)).toArray
+  override def classify(sample: Sample): Map[String, Double] = {
+    val features = vectorizer.vectorize(textFilter.filter(sample.content.toLowerCase)).toArray
     val instance = new DenseInstance(1, features)
 
-    lr.distributionForInstance(instance)
+    Map("lol" -> lr.distributionForInstance(instance)
       .zipWithIndex
       .find(_._2 == classIndex.indexOfValue(sample.category))
-      .map(_._1).getOrElse(0D)
+      .map(_._1).getOrElse(0D))
   }
 
   override def fit(samples: List[Sample]): Unit = {
     lr = new Logistic()
 
     debug("Building corpus")
-    vectorizer.fit(samples.map(sample => textFilter.filter(sample.content)))
+    vectorizer.fit(samples.map(sample => textFilter.filter(sample.content.toLowerCase)))
     debug("Done")
 
     val numFeatures = vectorizer.numFeatures + 1
@@ -52,12 +53,24 @@ class LogisticClassifier(var vectorizer: Vectorizer) extends TextClassifier {
     instances.setClassIndex(instances.numAttributes() - 1)
 
     debug("Vectorizing samples")
+    def map2vec(sample: Sample, vectors: List[(List[Double], String)], samplesLeft: List[Sample]): List[(List[Double], String)] =
+      if (samplesLeft.isEmpty) vectors
+      else map2vec(samplesLeft.head, (vectorizer.vectorize(textFilter.filter(sample.content)), sample.category) :: vectors, samplesLeft.tail)
+    /*
     val vecorized = samples
       .map(sample => (vectorizer.vectorize(textFilter.filter(sample.content)), sample.category))
+      */
+    //val vectorized = map2vec(samples.head, List(), samples.tail)
+    val vectorized = new Array[(List[Double], String)](samples.length)
+    var i = 0
+    for (sample <- samples) {
+      vectorized.update(i, (vectorizer.vectorize(textFilter.filter(sample.content)), sample.category))
+      i += 1
+    }
     debug("Done")
 
     debug("Creating dataset")
-    vecorized.foreach(sample => {
+    vectorized.foreach(sample => {
       val instance = new DenseInstance(numFeatures)
       instance.setDataset(instances)
 

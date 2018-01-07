@@ -16,6 +16,7 @@ lazy val root = (project in file(".")).
       "com.typesafe.akka"  %% "akka-persistence"     % akkaVersion,
       "org.jsoup"          % "jsoup"                 % "1.11.2",
       "nz.ac.waikato.cms.weka" % "weka-stable"       % "3.8.0",
+      "net.liftweb"        %% "lift-json"            % "3+",
 
       "com.typesafe.akka" %% "akka-http-testkit"    % akkaHttpVersion % Test,
       "com.typesafe.akka" %% "akka-testkit"         % akkaVersion     % Test,

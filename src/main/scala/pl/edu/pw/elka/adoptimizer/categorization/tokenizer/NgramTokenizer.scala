@@ -3,6 +3,8 @@ package pl.edu.pw.elka.adoptimizer.categorization.tokenizer
 import classifier.stemmer.Porter2Stemmer
 import pl.edu.pw.elka.adoptimizer.categorization.stemmer.Stemmer
 
+import scala.collection.mutable
+
 abstract class NgramTokenizer(ngramRange: Range, separator: String, stopwords: List[String]) extends Serializable {
 
   protected def ngrams(tokens: List[String]): Map[String, Int] = {
@@ -11,9 +13,12 @@ abstract class NgramTokenizer(ngramRange: Range, separator: String, stopwords: L
       else ngramsIter(n, tokens.tail, tokensLeft - 1, tokens.take(n).mkString(" ") :: result)
     }
 
-    (tokens ++ ngramRange.tail.flatMap(ngramsIter(_, tokens, tokens.length)))
-      .groupBy(_.toString)
-      .map(ngram => ngram._1 -> ngram._2.length)
+    val allNgrams = tokens ++ ngramRange.tail.flatMap(ngramsIter(_, tokens, tokens.length))
+    val counts = mutable.Map[String, Int]()
+    allNgrams.foreach(ngram => counts.update(ngram, counts.getOrElse(ngram, 0) + 1))
+    counts.toMap
+    //.groupBy(_.toString)
+    //.map(ngram => ngram._1 -> ngram._2.length)
   }
 
   protected def unigrams(text: String): List[String] = text.split(separator).toList
