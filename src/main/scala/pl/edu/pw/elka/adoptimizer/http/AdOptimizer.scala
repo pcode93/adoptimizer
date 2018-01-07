@@ -69,19 +69,20 @@ object AdOptimizer extends App {
 
   val ensembleParts = new Array[EnsemblePart](newsGroups.length)
 
-  for (i <- 0 to newsGroups.length)
-    ensembleParts(i) = new EnsemblePart(List(newsGroups(i)), classificationActors(i), 1D)
+  for (i <- newsGroups.indices)
+    ensembleParts(i) = EnsemblePart(List(newsGroups(i)), classificationActors(i), 1D)
 
   val ensembleActor = system.actorOf(Props(new EnsembleActor(ensembleParts: _*)))
-
-  val insertionActorsPool: ActorRef =
-    system.actorOf(RoundRobinPool(NR_OF_INSERTER_ACTORS).props(AdInserterActor.props), "insertersPool")
 
   val parsingActorsPool: ActorRef =
     system.actorOf(RoundRobinPool(NR_OF_PARSING_ACTORS).props(WebsiteParserActor.props), "parsersPool")
 
+  val insertionActorsPool: ActorRef =
+    system.actorOf(RoundRobinPool(NR_OF_INSERTER_ACTORS).
+      props(Props(new AdInserterActor(parsingActorsPool, ensembleActor))), "insertersPool")
+
   val adApiActor: ActorRef = system.actorOf(Props(new AdApiActor(insertionActorsPool)), "adApiActor")
-  val systemApiActor: ActorRef = system.actorOf(SystemApiActor.props, "systemApiActor")
+  val systemApiActor: ActorRef = system.actorOf(Props(new SystemApiActor(ensembleActor)), "systemApiActor")
 
   val adApiBindingFuture: Future[ServerBinding] =
     Http().bindAndHandle(AdRoutes.routes(adApiActor), "localhost", 8080)
