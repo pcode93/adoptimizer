@@ -44,7 +44,7 @@ class EnsembleActorSpec extends TestKit(ActorSystem("EnsembleSpec"))
       val future = ensembleActor ? Classify(sample)
 
       actorHandlingCategoryA.expectMsg(Classify(sample))
-      actorHandlingCategoryA.reply(2D)
+      actorHandlingCategoryA.reply(Map((sample.category, 2D)))
 
       whenReady(future) { result =>
         result shouldBe 1D

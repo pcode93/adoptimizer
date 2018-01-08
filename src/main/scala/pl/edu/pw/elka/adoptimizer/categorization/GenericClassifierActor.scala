@@ -2,11 +2,15 @@ package pl.edu.pw.elka.adoptimizer.categorization
 
 import java.util.Date
 
-import akka.actor.{ ActorLogging, ActorRef }
+import akka.actor.{ ActorLogging, ActorRef, Props }
 import akka.persistence.{ PersistentActor, SnapshotOffer }
 import pl.edu.pw.elka.adoptimizer.categorization.classifier.TextClassifier
 import pl.edu.pw.elka.adoptimizer.categorization.model.Message.{ Classify, Train }
 import pl.edu.pw.elka.adoptimizer.categorization.model.Sample
+
+object GenericClassifierActor {
+  def props: Props = Props[GenericClassifierActor]
+}
 
 class GenericClassifierActor(classifier: TextClassifier, uuid: String)
     extends PersistentActor with ActorLogging {

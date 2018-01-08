@@ -25,8 +25,13 @@ class EnsembleActor(classifiers: EnsemblePart*) extends Actor {
     val classifications = classifiers
       .filter(_.classes.contains(sample.category))
       .map(classifier => (classifier.ref ? Classify(sample))
-        .mapTo[Double]
-        .map(score => (classifier.weight, score)))
+        .mapTo[Map[String, Double]]
+        .map(scoreMap => {
+          var score: Double = 0D
+          if (scoreMap.values.toList.nonEmpty)
+            score = scoreMap.values.toList.head
+          (classifier.weight, score)
+        }))
 
     Future.sequence(classifications).onComplete {
       case Success(scores) => sender ! scores.foldLeft(0D)((sum, score) => sum + score._1 * score._2)
