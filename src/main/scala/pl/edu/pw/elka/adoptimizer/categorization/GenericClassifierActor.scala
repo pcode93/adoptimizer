@@ -26,7 +26,7 @@ class GenericClassifierActor(classifier: TextClassifier, uuid: String)
 
     val sets = samples
       .groupBy(_.category)
-      .map(category => category._2.splitAt((category._2.length * 0.7).toInt))
+      .map(category => category._2.splitAt((category._2.length * 0.5).toInt))
       .reduce((x, y) => (x._1 ++ y._1, x._2 ++ y._2))
 
     classifier.fit(sets._1)
