@@ -2,33 +2,37 @@ package pl.edu.pw.elka.adoptimizer.http
 
 import java.util.UUID.randomUUID
 
-import akka.actor.{ ActorRef, ActorSystem, Props }
+import akka.actor.{ActorRef, ActorSystem, Props}
 import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
 import akka.routing.RoundRobinPool
 import akka.stream.ActorMaterializer
+import com.typesafe.config.ConfigFactory
 import pl.edu.pw.elka.adoptimizer.adinsertion.AdInserterActor
-import pl.edu.pw.elka.adoptimizer.api.{ AdApiActor, SystemApiActor }
+import pl.edu.pw.elka.adoptimizer.api.{AdApiActor, SystemApiActor}
 import pl.edu.pw.elka.adoptimizer.categorization.classifier.bayes.BayesianTextClassifier
-import pl.edu.pw.elka.adoptimizer.categorization.tokenizer.{ SimpleStemmedTokenizer, SimpleTokenizer }
-import pl.edu.pw.elka.adoptimizer.categorization.{ EnsembleActor, EnsemblePart, GenericClassifierActor }
-import pl.edu.pw.elka.adoptimizer.http.routes.{ AdRoutes, SystemRoutes }
+import pl.edu.pw.elka.adoptimizer.categorization.classifier.logistic.LogisticClassifier
+import pl.edu.pw.elka.adoptimizer.categorization.preprocessing.Stopwords
+import pl.edu.pw.elka.adoptimizer.categorization.tokenizer.{SimpleStemmedTokenizer, SimpleTokenizer, StemmedUnigramTokenizer}
+import pl.edu.pw.elka.adoptimizer.categorization.vectorizer.TfIdfVectorizer
+import pl.edu.pw.elka.adoptimizer.categorization.{EnsembleActor, EnsemblePart, GenericClassifierActor}
+import pl.edu.pw.elka.adoptimizer.http.routes.{AdRoutes, SystemRoutes}
 import pl.edu.pw.elka.adoptimizer.parsing.WebsiteParserActor
 
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.{ExecutionContext, Future}
 import scala.io.StdIn
 
 final case class AdOptimizer()
 
 object AdOptimizer extends App {
 
-  private final val NR_OF_INSERTER_ACTORS = 10;
-  private final val NR_OF_PARSING_ACTORS = 10;
+  private final val NR_OF_INSERTER_ACTORS = 10
+  private final val NR_OF_PARSING_ACTORS = 10
 
   lazy val log = Logging(system, classOf[AdOptimizer])
 
-  private def unbind(server: Future[ServerBinding])(oncomplete: () => Unit) =
+  private def unbind(server: Future[ServerBinding])(oncomplete: () => Unit): Unit =
     server.flatMap(_.unbind()).onComplete({ done =>
       done.failed.map { ex => log.error(ex, "Failed unbinding.") }
       oncomplete()
@@ -38,41 +42,13 @@ object AdOptimizer extends App {
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val executionContext: ExecutionContext = system.dispatcher
 
-  val newsGroups = Array(
-    "alt.atheism",
-    "comp.graphics",
-    "comp.os.ms-windows.misc",
-    "comp.sys.ibm.pc.hardware",
-    "comp.sys.mac.hardware",
-    "comp.windows.x",
-    "misc.forsale",
-    "rec.autos",
-    "rec.motorcycles",
-    "rec.sport.baseball",
-    "rec.sport.hockey",
-    "sci.crypt",
-    "sci.electronics",
-    "sci.med",
-    "sci.space",
-    "soc.religion.christian",
-    "talk.politics.guns",
-    "talk.politics.mideast",
-    "talk.politics.misc",
-    "talk.religion.misc"
-  )
+  val vectorizer = new TfIdfVectorizer(minCount = 100, maxCount = 1000, tokenizer = new StemmedUnigramTokenizer(Stopwords.en))
+  val lrActor = system.actorOf(Props(new GenericClassifierActor(new LogisticClassifier(vectorizer), "logistic")), "lrActor")
 
-  val classificationActors: Array[ActorRef] = Array.fill(newsGroups.length)(system.
-    actorOf(Props(new GenericClassifierActor(
-      new BayesianTextClassifier(new SimpleStemmedTokenizer),
-      randomUUID().toString
-    ))))
+  val bayesActor = system.actorOf(Props(new GenericClassifierActor(BayesianTextClassifier(new SimpleStemmedTokenizer), "bayes")), "bayesActor")
+  //ConfigFactory.load().getConfig("ensemble.classifiers")
 
-  val ensembleParts = new Array[EnsemblePart](newsGroups.length)
-
-  for (i <- newsGroups.indices)
-    ensembleParts(i) = EnsemblePart(List(newsGroups(i)), classificationActors(i), 1D)
-
-  val ensembleActor = system.actorOf(Props(new EnsembleActor(ensembleParts: _*)))
+  val ensembleActor = system.actorOf(Props(new EnsembleActor(EnsemblePart(lrActor), EnsemblePart(bayesActor))), "ensemble")
 
   val parsingActorsPool: ActorRef =
     system.actorOf(RoundRobinPool(NR_OF_PARSING_ACTORS).props(WebsiteParserActor.props), "parsersPool")

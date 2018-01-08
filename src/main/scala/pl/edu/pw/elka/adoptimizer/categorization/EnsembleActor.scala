@@ -10,7 +10,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.{ Failure, Success }
 
-final case class EnsemblePart(classes: List[String], ref: ActorRef, weight: Double)
+final case class EnsemblePart(ref: ActorRef, weight: Double = 1D)
 final case class EnsembleClassifierException(msg: String, cause: Throwable) extends RuntimeException
 
 object EnsembleActor {
@@ -23,15 +23,9 @@ class EnsembleActor(classifiers: EnsemblePart*) extends Actor {
 
   def classify(sample: Sample, sender: ActorRef): Unit = {
     val classifications = classifiers
-      .filter(_.classes.contains(sample.category))
       .map(classifier => (classifier.ref ? Classify(sample))
-        .mapTo[Map[String, Double]]
-        .map(scoreMap => {
-          var score: Double = 0D
-          if (scoreMap.values.toList.nonEmpty)
-            score = scoreMap.values.toList.head
-          (classifier.weight, score)
-        }))
+        .mapTo[Double]
+        .map(score => (classifier.weight, score)))
 
     Future.sequence(classifications).onComplete {
       case Success(scores) => sender ! scores.foldLeft(0D)((sum, score) => sum + score._1 * score._2)
@@ -41,11 +35,7 @@ class EnsembleActor(classifiers: EnsemblePart*) extends Actor {
   }
 
   def fit(samples: List[Sample]): Unit = {
-    val classes = samples.groupBy(_.category)
-    classifiers.foreach(classifier => {
-      val filteredClasses = classes.filter(clazz => classifier.classes.contains(clazz._1))
-      classifier.ref ! Train(filteredClasses.flatMap(_._2).toList)
-    })
+    classifiers.foreach(_.ref ! Train(samples))
   }
 
   override def receive: Receive = {

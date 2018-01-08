@@ -13,3 +13,9 @@ trait TextClassifier {
   def load(state: Any): Unit
 }
 
+object TextClassifier {
+  def of(name: String, params: Map[String, String]): TextClassifier = {
+    null
+  }
+}
+

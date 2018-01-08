@@ -19,14 +19,14 @@ object SystemApiActor {
 class SystemApiActor(classificationEnsemble: ActorRef) extends Actor with ActorLogging {
   import SystemApiActor._
 
-  /*
+
   val vectorizer = new TfIdfVectorizer(minCount = 100, maxCount = 1000, tokenizer = new StemmedUnigramTokenizer(Stopwords.en))
   val actor: ActorRef =
     context.actorOf(Props(new GenericClassifierActor(new LogisticClassifier(vectorizer), "lr")), "lrActor")
-  */
+
 
   def receive: Receive = {
     case TrainEnsemble(uri) =>
-      classificationEnsemble ! Train(CsvParser.parse(FileReader.fromPath(uri), ";"))
+      actor ! Train(CsvParser.parse(FileReader.fromPath(uri), ";"))
   }
 }
