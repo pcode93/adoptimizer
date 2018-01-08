@@ -33,6 +33,7 @@ class LogisticClassifier(var vectorizer: Vectorizer) extends TextClassifier {
 
   override def fit(samples: List[Sample]): Unit = {
     lr = new Logistic()
+    lr.setUseConjugateGradientDescent(true)
 
     debug("Building corpus")
     vectorizer.fit(samples.map(sample => textFilter.filter(sample.content.toLowerCase)))
