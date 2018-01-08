@@ -13,12 +13,11 @@ abstract class NgramTokenizer(ngramRange: Range, separator: String, stopwords: L
       else ngramsIter(n, tokens.tail, tokensLeft - 1, tokens.take(n).mkString(" ") :: result)
     }
 
-    val allNgrams = tokens ++ ngramRange.tail.flatMap(ngramsIter(_, tokens, tokens.length))
-    val counts = mutable.Map[String, Int]()
-    allNgrams.foreach(ngram => counts.update(ngram, counts.getOrElse(ngram, 0) + 1))
-    counts.toMap
-    //.groupBy(_.toString)
-    //.map(ngram => ngram._1 -> ngram._2.length)
+    (tokens ++ ngramRange.tail.flatMap(ngramsIter(_, tokens, tokens.length)))
+      .foldLeft(mutable.Map[String, Int]())((counts, ngram) => {
+        counts.update(ngram, counts.getOrElse(ngram, 0) + 1)
+        counts
+      }).toMap
   }
 
   protected def unigrams(text: String): List[String] = text.split(separator).toList

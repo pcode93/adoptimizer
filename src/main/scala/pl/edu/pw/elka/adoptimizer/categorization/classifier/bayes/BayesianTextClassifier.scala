@@ -12,10 +12,10 @@ import scala.util.control.Breaks._
  */
 case class BayesianTextClassifier(tk: Tokenizer) extends TextClassifier {
   final val MinValue: Double = -(2 ^ 32)
-  val knowledgeBase = BayesianKnowledgeBase(tk)
+  var knowledgeBase: BayesianKnowledgeBase = _
 
-  override def classify(sample: Sample): Map[String, Double] = {
-    val doc = tk.tokenize(sample.content)
+  override def classify(text: String): Map[String, Double] = {
+    val doc = tk.tokenize(text)
 
     var results = mutable.Map[String, Double]()
 
@@ -40,12 +40,15 @@ case class BayesianTextClassifier(tk: Tokenizer) extends TextClassifier {
       results.put(category, logprob)
     }
 
-    return results.toMap
+    results.toMap
   }
 
-  override def fit(samples: List[Sample]): Unit = knowledgeBase.train(samples)
+  override def fit(samples: List[Sample]): Unit = {
+    knowledgeBase = BayesianKnowledgeBase(tk)
+    knowledgeBase.train(samples)
+  }
 
   override def save(): Any = knowledgeBase
 
-  override def load(state: Any): Unit = ???
+  override def load(state: Any): Unit = knowledgeBase = state.asInstanceOf[BayesianKnowledgeBase]
 }

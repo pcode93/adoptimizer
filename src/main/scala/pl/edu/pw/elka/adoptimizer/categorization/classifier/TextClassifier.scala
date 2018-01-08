@@ -7,7 +7,7 @@ import pl.edu.pw.elka.adoptimizer.categorization.model.Sample
  */
 
 trait TextClassifier {
-  def classify(sample: Sample): Map[String, Double]
+  def classify(text: String): Map[String, Double]
   def fit(samples: List[Sample]): Unit
   def save(): Any
   def load(state: Any): Unit

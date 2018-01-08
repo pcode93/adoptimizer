@@ -34,7 +34,7 @@ class BayesianKnowledgeBaseSpec extends WordSpec with Matchers with BeforeAndAft
 
     "reduces first provided category into collection without stopwords" in {
       var containsStopwords = false
-      val stemmedStopwords = Stopwords.stopwords.mapConserve(x => new Porter2Stemmer().stem(x))
+      val stemmedStopwords = Stopwords.en.mapConserve(x => new Porter2Stemmer().stem(x))
       stemmedStopwords.foreach(x => containsStopwords = testedKB.logLikelihoods.keySet.contains(x))
       assert(!containsStopwords)
     }

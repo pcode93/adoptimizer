@@ -14,17 +14,7 @@ class TfIdfVectorizer(
 
   override def vectorize(text: String): List[Double] = {
     val counts = transformer.tfidf(tokenizer.tokenize(text))
-    /*
-    var result = new Array[Double](numFeatures)
-    var i = 0
-    features.foreach(feature => {
-      result.update(i, counts.getOrElse(feature, defaultCount))
-      i += 1
-    })
-    result.toList
-    */
     features.map(counts.getOrElse(_, defaultCount))
-    //List()
   }
 
   var numFeatures: Int = 0

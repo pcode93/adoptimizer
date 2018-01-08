@@ -15,7 +15,7 @@ case class SimpleTokenizer() extends Tokenizer {
   }
 
   protected def removeStopwords(keywords: Array[String]): Array[String] = {
-    return keywords.filter(x => !Stopwords.stopwords.contains(x))
+    return keywords.filter(x => !Stopwords.en.contains(x))
   }
 
   protected def getKeywordsCount(keywords: Array[String]): mutable.Map[String, Int] = {
