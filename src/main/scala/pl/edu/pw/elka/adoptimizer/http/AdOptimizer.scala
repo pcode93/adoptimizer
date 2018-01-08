@@ -11,7 +11,7 @@ import akka.stream.ActorMaterializer
 import pl.edu.pw.elka.adoptimizer.adinsertion.AdInserterActor
 import pl.edu.pw.elka.adoptimizer.api.{ AdApiActor, SystemApiActor }
 import pl.edu.pw.elka.adoptimizer.categorization.classifier.bayes.BayesianTextClassifier
-import pl.edu.pw.elka.adoptimizer.categorization.tokenizer.SimpleStemmedTokenizer
+import pl.edu.pw.elka.adoptimizer.categorization.tokenizer.{ SimpleStemmedTokenizer, SimpleTokenizer }
 import pl.edu.pw.elka.adoptimizer.categorization.{ EnsembleActor, EnsemblePart, GenericClassifierActor }
 import pl.edu.pw.elka.adoptimizer.http.routes.{ AdRoutes, SystemRoutes }
 import pl.edu.pw.elka.adoptimizer.parsing.WebsiteParserActor
