@@ -12,7 +12,7 @@ import weka.core.{ Attribute, DenseInstance, Instances }
 
 import scala.collection.JavaConverters._
 
-class LogisticClassifier(var vectorizer: Vectorizer) extends TextClassifier {
+class LogisticClassifier(private var vectorizer: Vectorizer, maxIterations: Int = 20) extends TextClassifier {
   private val textFilter = ComplexTextFilter(WhitespaceConvertingFilter(), TextCleaningFilter())
 
   private var lr: Logistic = _
@@ -34,7 +34,7 @@ class LogisticClassifier(var vectorizer: Vectorizer) extends TextClassifier {
   override def fit(samples: List[Sample]): Unit = {
     lr = new Logistic()
     lr.setUseConjugateGradientDescent(true)
-    lr.setMaxIts(1000)
+    lr.setMaxIts(maxIterations)
 
     debug("Building corpus")
     vectorizer.fit(samples.map(sample => textFilter.filter(sample.content.toLowerCase)))

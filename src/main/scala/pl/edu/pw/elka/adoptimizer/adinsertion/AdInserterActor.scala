@@ -15,9 +15,13 @@ import scala.util.{ Failure, Success }
 
 object AdInserterActor {
   type ClassificationResultsType = Map[Double, String]
+
   final case class ParsedParagraphs(paragraphs: List[Paragraph])
   final case class HtmlWithAd(htmlWithAd: String)
   final case class ClassificationResults(bestParagraph: String)
+
+  final case class AdInserterException(message: String, cause: Throwable) extends RuntimeException(message, cause)
+
   def props: Props = Props[AdInserterActor]
 }
 
@@ -50,24 +54,20 @@ class AdInserterActor(parsingActors: ActorRef, classificationEnsemble: ActorRef)
       requestOriginActor ! htmlWithAd
   }
 
-  def classifyParagraphs(samples: List[Sample]) = {
-    val results = samples
-      .map(sample => (classificationEnsemble ? Classify(sample))
-        .mapTo[Double])
-    Future.sequence(results).onComplete {
-      case Success(results) => {
+  def classifyParagraphs(samples: List[Sample]): Unit = {
+    val scores = samples.map(sample => (classificationEnsemble ? Classify(sample))
+      .mapTo[Double].map((sample.content, _)))
 
-        self ! ClassificationResults(selectBestParagraph(samples, results))
-      }
+    Future.sequence(scores).onComplete {
+      case Success(results) =>
+        self ! ClassificationResults(selectBestParagraph(results))
       case Failure(exception) =>
-        throw EnsembleClassifierException("Exception when classifying", exception)
+        throw AdInserterException("Exception getting scores for paragraphs", exception)
     }
   }
 
-  def selectBestParagraph(samples: List[Sample], results: List[Double]): String = {
-    val resultsWithParagraphs: ClassificationResultsType =
-      (results zip samples.map(classifiedSample => classifiedSample.content)).toMap
-    resultsWithParagraphs.max._2
+  def selectBestParagraph(scores: List[(String, Double)]): String = {
+    println(scores)
+    scores.maxBy(_._2)._1
   }
-
 }

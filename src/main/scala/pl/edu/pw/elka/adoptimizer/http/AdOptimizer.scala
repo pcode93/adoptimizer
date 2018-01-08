@@ -2,7 +2,7 @@ package pl.edu.pw.elka.adoptimizer.http
 
 import java.util.UUID.randomUUID
 
-import akka.actor.{ActorRef, ActorSystem, Props}
+import akka.actor.{ ActorRef, ActorSystem, Props }
 import akka.event.Logging
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.Http.ServerBinding
@@ -10,17 +10,17 @@ import akka.routing.RoundRobinPool
 import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
 import pl.edu.pw.elka.adoptimizer.adinsertion.AdInserterActor
-import pl.edu.pw.elka.adoptimizer.api.{AdApiActor, SystemApiActor}
+import pl.edu.pw.elka.adoptimizer.api.{ AdApiActor, SystemApiActor }
 import pl.edu.pw.elka.adoptimizer.categorization.classifier.bayes.BayesianTextClassifier
 import pl.edu.pw.elka.adoptimizer.categorization.classifier.logistic.LogisticClassifier
 import pl.edu.pw.elka.adoptimizer.categorization.preprocessing.Stopwords
-import pl.edu.pw.elka.adoptimizer.categorization.tokenizer.{SimpleStemmedTokenizer, SimpleTokenizer, StemmedUnigramTokenizer}
+import pl.edu.pw.elka.adoptimizer.categorization.tokenizer.{ SimpleStemmedTokenizer, SimpleTokenizer, StemmedUnigramTokenizer }
 import pl.edu.pw.elka.adoptimizer.categorization.vectorizer.TfIdfVectorizer
-import pl.edu.pw.elka.adoptimizer.categorization.{EnsembleActor, EnsemblePart, GenericClassifierActor}
-import pl.edu.pw.elka.adoptimizer.http.routes.{AdRoutes, SystemRoutes}
+import pl.edu.pw.elka.adoptimizer.categorization.{ EnsembleActor, EnsemblePart, GenericClassifierActor }
+import pl.edu.pw.elka.adoptimizer.http.routes.{ AdRoutes, SystemRoutes }
 import pl.edu.pw.elka.adoptimizer.parsing.WebsiteParserActor
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.{ ExecutionContext, Future }
 import scala.io.StdIn
 
 final case class AdOptimizer()
@@ -43,7 +43,7 @@ object AdOptimizer extends App {
   implicit val executionContext: ExecutionContext = system.dispatcher
 
   val vectorizer = new TfIdfVectorizer(minCount = 100, maxCount = 1000, tokenizer = new StemmedUnigramTokenizer(Stopwords.en))
-  val lrActor = system.actorOf(Props(new GenericClassifierActor(new LogisticClassifier(vectorizer), "logistic")), "lrActor")
+  val lrActor = system.actorOf(Props(new GenericClassifierActor(new LogisticClassifier(vectorizer), "lr")), "lrActor")
 
   val bayesActor = system.actorOf(Props(new GenericClassifierActor(BayesianTextClassifier(new SimpleStemmedTokenizer), "bayes")), "bayesActor")
   //ConfigFactory.load().getConfig("ensemble.classifiers")

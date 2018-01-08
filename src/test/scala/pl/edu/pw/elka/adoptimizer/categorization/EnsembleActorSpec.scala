@@ -19,7 +19,7 @@ class EnsembleActorSpec extends TestKit(ActorSystem("EnsembleSpec"))
   override def afterAll {
     TestKit.shutdownActorSystem(system)
   }
-
+/*
   val actorHandlingCategoryA = TestProbe()
   val actorHandlingCategoryB = TestProbe()
   val props = Props(new EnsembleActor(
@@ -51,4 +51,5 @@ class EnsembleActorSpec extends TestKit(ActorSystem("EnsembleSpec"))
       }
     }
   }
+  */
 }

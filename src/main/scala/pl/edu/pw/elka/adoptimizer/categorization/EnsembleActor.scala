@@ -28,7 +28,10 @@ class EnsembleActor(classifiers: EnsemblePart*) extends Actor {
         .map(score => (classifier.weight, score)))
 
     Future.sequence(classifications).onComplete {
-      case Success(scores) => sender ! scores.foldLeft(0D)((sum, score) => sum + score._1 * score._2)
+      case Success(scores) => {
+        println(scores)
+        sender ! scores.foldLeft(0D)((sum, score) => sum + score._1 * score._2)
+      }
       case Failure(exception) =>
         throw EnsembleClassifierException("Exception when classifying", exception)
     }

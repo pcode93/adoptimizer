@@ -15,8 +15,11 @@ object GenericClassifierActor {
 class GenericClassifierActor(classifier: TextClassifier, uuid: String)
     extends PersistentActor with ActorLogging {
 
-  def classify(sample: Sample, sender: ActorRef): Unit =
-    sender ! classifier.classify(sample.content).getOrElse(sample.category, 0D)
+  def classify(sample: Sample, sender: ActorRef): Unit = {
+    val res = classifier.classify(sample.content).getOrElse(sample.category, 0D)
+    log.info(s"$uuid score: $res")
+    sender ! res
+  }
 
   def fit(samples: List[Sample]): Unit = {
     log.info(s"Classifier $uuid training started at ${new Date()}")
