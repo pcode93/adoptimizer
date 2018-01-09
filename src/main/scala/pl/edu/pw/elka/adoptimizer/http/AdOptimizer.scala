@@ -12,7 +12,7 @@ import com.typesafe.config.ConfigFactory
 import pl.edu.pw.elka.adoptimizer.adinsertion.AdInserterActor
 import pl.edu.pw.elka.adoptimizer.api.{ AdApiActor, SystemApiActor }
 import pl.edu.pw.elka.adoptimizer.categorization.classifier.bayes.BayesianTextClassifier
-import pl.edu.pw.elka.adoptimizer.categorization.classifier.logistic.LogisticClassifier
+import pl.edu.pw.elka.adoptimizer.categorization.classifier.linear.LogisticClassifier
 import pl.edu.pw.elka.adoptimizer.categorization.preprocessing.Stopwords
 import pl.edu.pw.elka.adoptimizer.categorization.tokenizer.{ SimpleStemmedTokenizer, SimpleTokenizer, StemmedUnigramTokenizer }
 import pl.edu.pw.elka.adoptimizer.categorization.vectorizer.TfIdfVectorizer

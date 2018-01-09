@@ -1,4 +1,4 @@
-package pl.edu.pw.elka.adoptimizer.categorization.classifier.logistic
+package pl.edu.pw.elka.adoptimizer.categorization.classifier.linear
 
 import java.util
 import java.util.Date
