@@ -9,7 +9,7 @@ import akka.stream.ActorMaterializer
 import pl.edu.pw.elka.adoptimizer.adinsertion.AdInserterActor
 import pl.edu.pw.elka.adoptimizer.api.{ AdApiActor, SystemApiActor }
 import pl.edu.pw.elka.adoptimizer.categorization.classifier.TextClassifier
-import pl.edu.pw.elka.adoptimizer.categorization.{ EnsembleActor, EnsemblePart, GenericClassifierActor }
+import pl.edu.pw.elka.adoptimizer.categorization.{ EnsembleActor, EnsemblePart, ClassifierActor }
 import pl.edu.pw.elka.adoptimizer.http.routes.{ AdRoutes, SystemRoutes }
 import pl.edu.pw.elka.adoptimizer.parsing.WebsiteParserActor
 
@@ -32,8 +32,8 @@ object AdOptimizer extends App {
     })
 
   private def getEnsemble(): ActorRef = {
-    val lrActor = system.actorOf(Props(new GenericClassifierActor(TextClassifier.of("lr"), "lr")), "lrActor")
-    val bayesActor = system.actorOf(Props(new GenericClassifierActor(TextClassifier.of("bayes"), "bayes")), "bayesActor")
+    val lrActor = system.actorOf(Props(new ClassifierActor(TextClassifier.of("lr"), "lr")), "lrActor")
+    val bayesActor = system.actorOf(Props(new ClassifierActor(TextClassifier.of("bayes"), "bayes")), "bayesActor")
 
     system.actorOf(Props(new EnsembleActor(EnsemblePart(lrActor), EnsemblePart(bayesActor))), "ensemble")
   }
