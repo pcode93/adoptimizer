@@ -31,7 +31,6 @@ class ModelBuildingActor(classifier: TextClassifier, uuid: String)
       .sum.toDouble / sets._2.length.toDouble
     log.info(s"Classifier $uuid accuracy: $acc")
 
-
     context.system.eventStream.publish(NewModel(acc, classifier.save(), uuid))
   }
 

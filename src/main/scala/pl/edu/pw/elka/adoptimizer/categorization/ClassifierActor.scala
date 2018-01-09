@@ -16,6 +16,7 @@ class ClassifierActor(classifier: TextClassifier, uuid: String)
     extends PersistentActor with ActorLogging {
 
   private var accuracy: Double = 0D
+  context.system.eventStream.subscribe(self, classOf[NewModel])
 
   def classify(sample: Sample, sender: ActorRef): Unit = {
     val res = classifier.classify(sample.content).getOrElse(sample.category, 0D)
