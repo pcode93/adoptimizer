@@ -12,6 +12,7 @@ class AdInserterSpec extends TestKit(ActorSystem("AdInserterSpec"))
   val parsingMockupActor = TestProbe()
   val classificationEnsembleMockeup = TestProbe()
 
+  /*
   "AdInserter" should {
     "Match paragraphs with results and return paragraph with the highest result" in {
       val samples = List(Sample("text1", "A"), Sample("text2", "A"), Sample("text3", "A"))
@@ -26,5 +27,5 @@ class AdInserterSpec extends TestKit(ActorSystem("AdInserterSpec"))
     }
 
   }
-
+  */
 }

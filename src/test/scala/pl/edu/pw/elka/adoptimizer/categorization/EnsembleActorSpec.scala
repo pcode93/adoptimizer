@@ -19,37 +19,39 @@ class EnsembleActorSpec extends TestKit(ActorSystem("EnsembleSpec"))
   override def afterAll {
     TestKit.shutdownActorSystem(system)
   }
-/*
-  val actorHandlingCategoryA = TestProbe()
-  val actorHandlingCategoryB = TestProbe()
+
+  val actorA = TestProbe()
+  val actorB = TestProbe()
+
   val props = Props(new EnsembleActor(
-    EnsemblePart(List("A"), actorHandlingCategoryA.ref, 0.5),
-    EnsemblePart(List("B"), actorHandlingCategoryB.ref, 0.5)
+    EnsemblePart(actorA.ref, 0.5),
+    EnsemblePart(actorB.ref, 0.5)
   ))
+
   val ensembleActor: ActorRef = system.actorOf(props, "ensembleActor")
 
   "Ensemble Actor" should {
-    "split training data across classifiers" in {
-      val samplesFromA = List(Sample("text1", "A"), Sample("text2", "A"))
-      val samplesFromB = List(Sample("text3", "B"))
-      val allSamples = samplesFromA ++ samplesFromB
+    "send training data to classifiers" in {
+      val samples = List(Sample("text1", "A"), Sample("text2", "B"))
 
-      ensembleActor ! Train(allSamples)
-      actorHandlingCategoryA.expectMsg(Train(samplesFromA))
-      actorHandlingCategoryB.expectMsg(Train(samplesFromB))
+      ensembleActor ! Train(samples)
+      actorA.expectMsg(Train(samples))
+      actorB.expectMsg(Train(samples))
     }
 
     "return a weighted sum of scores returned by classifiers" in {
       val sample = Sample("Test text", "A")
       val future = ensembleActor ? Classify(sample)
 
-      actorHandlingCategoryA.expectMsg(Classify(sample))
-      actorHandlingCategoryA.reply(Map((sample.category, 2D)))
+      actorA.expectMsg(Classify(sample))
+      actorA.reply(2D)
+
+      actorB.expectMsg(Classify(sample))
+      actorB.reply(2D)
 
       whenReady(future) { result =>
-        result shouldBe 1D
+        result shouldBe 2D
       }
     }
   }
-  */
 }
