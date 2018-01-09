@@ -1,7 +1,7 @@
 package pl.edu.pw.elka.adoptimizer.categorization
 import java.util.Date
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{ Actor, ActorLogging, Props }
 import pl.edu.pw.elka.adoptimizer.categorization.ClassifierActor.NewModel
 import pl.edu.pw.elka.adoptimizer.categorization.classifier.TextClassifier
 import pl.edu.pw.elka.adoptimizer.categorization.model.Message.Train
@@ -13,7 +13,7 @@ object ModelBuildingActor {
 }
 
 class ModelBuildingActor(classifier: TextClassifier, uuid: String)
-  extends Actor with ActorLogging with Trainable {
+    extends Actor with ActorLogging with Trainable {
 
   override def fit(samples: List[Sample]): Unit = {
     log.info(s"Classifier $uuid training started at ${new Date()}")

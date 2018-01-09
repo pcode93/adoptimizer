@@ -1,7 +1,7 @@
 package pl.edu.pw.elka.adoptimizer.categorization
 
-import akka.actor.{ActorLogging, ActorRef, Props}
-import akka.persistence.{PersistentActor, SnapshotOffer}
+import akka.actor.{ ActorLogging, ActorRef, Props }
+import akka.persistence.{ PersistentActor, SnapshotOffer }
 import pl.edu.pw.elka.adoptimizer.categorization.ClassifierActor.NewModel
 import pl.edu.pw.elka.adoptimizer.categorization.classifier.TextClassifier
 import pl.edu.pw.elka.adoptimizer.categorization.model.Message.Classify
@@ -37,7 +37,7 @@ class ClassifierActor(classifier: TextClassifier, uuid: String)
 
   override def receiveCommand: Receive = {
     case Classify(sample) => classify(sample, sender())
-    case NewModel(acc, state, id) => if(id == uuid && acc > accuracy) {
+    case NewModel(acc, state, id) => if (id == uuid && acc > accuracy) {
       classifier.load(state)
 
       accuracy = acc
