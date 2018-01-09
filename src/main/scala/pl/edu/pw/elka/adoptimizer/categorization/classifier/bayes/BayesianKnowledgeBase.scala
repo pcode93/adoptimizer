@@ -16,8 +16,8 @@ case class BayesianKnowledgeBase(tk: Tokenizer) extends KnowledgeBase {
   var d: Int = 0
 
   var chisquareCriticalValue: Double = 6.63
-  var logPriors: mutable.HashMap[String, Double] = mutable.HashMap[String, Double]()
-  var logLikelihoods: mutable.HashMap[String, mutable.HashMap[String, Double]] = mutable.HashMap[String, mutable.HashMap[String, Double]]()
+  var priors: mutable.HashMap[String, Double] = mutable.HashMap[String, Double]()
+  var likelihoods: mutable.HashMap[String, mutable.HashMap[String, Double]] = mutable.HashMap[String, mutable.HashMap[String, Double]]()
 
   var tokenizer: Tokenizer = tk
 
@@ -62,12 +62,12 @@ case class BayesianKnowledgeBase(tk: Tokenizer) extends KnowledgeBase {
       val cat = category._1
       val count = category._2
 
-      logPriors.put(cat, log(count / n.asInstanceOf[Double]))
+      priors.put(cat, count / n.asInstanceOf[Double])
     }
 
     val featureOccurrencesInCategory = mutable.HashMap[String, Double]()
 
-    for (category <- logPriors.keys) {
+    for (category <- priors.keys) {
       var featureOccSum = 0.0
 
       for (categoryListOccurences <- featureStats.featureCategoryJointCount.values) {
@@ -79,7 +79,7 @@ case class BayesianKnowledgeBase(tk: Tokenizer) extends KnowledgeBase {
       featureOccurrencesInCategory.put(category, featureOccSum)
     }
 
-    for (category <- logPriors.keys) {
+    for (category <- priors.keys) {
       for (entry <- featureStats.featureCategoryJointCount) {
         val feature = entry._1
         val featureCategoryCounts = entry._2
@@ -89,11 +89,11 @@ case class BayesianKnowledgeBase(tk: Tokenizer) extends KnowledgeBase {
           count = Some(0)
         }
 
-        val logLikelihood = Math.log((count.get + 1) / (featureOccurrencesInCategory(category) + d))
-        if (!logLikelihoods.contains(feature))
-          logLikelihoods.put(feature, mutable.HashMap[String, Double]())
+        val likelihood = (count.get + 1) / (featureOccurrencesInCategory(category) + d)
+        if (!likelihoods.contains(feature))
+          likelihoods.put(feature, mutable.HashMap[String, Double]())
 
-        logLikelihoods(feature).put(category, logLikelihood)
+        likelihoods(feature).put(category, likelihood)
       }
     }
   }

@@ -12,7 +12,6 @@ import scala.util.control.Breaks._
  * Created by leszek on 26/12/2017.
  */
 case class BayesianTextClassifier(tk: Tokenizer) extends TextClassifier {
-  final val MinValue: Double = -(2 ^ 32)
   var knowledgeBase: BayesianKnowledgeBase = _
 
   override def classify(text: String): Map[String, Double] = {
@@ -20,25 +19,26 @@ case class BayesianTextClassifier(tk: Tokenizer) extends TextClassifier {
 
     var results = mutable.Map[String, Double]()
 
-    for (categoryEntry <- knowledgeBase.logPriors.toSeq) {
+    for (categoryEntry <- knowledgeBase.priors.toSeq) {
       val category = categoryEntry._1
-      var logprob = MinValue
+      var prob = 0.0
 
       for (featureEntry <- tokens.toSeq) {
         breakable {
           val feature = featureEntry._1
 
-          if (!knowledgeBase.logLikelihoods.contains(feature)) {
+          if (!knowledgeBase.likelihoods.contains(feature)) {
             break
           }
 
           val occurrences = featureEntry._2
 
-          logprob += occurrences * knowledgeBase.logLikelihoods(feature)(category)
+          prob += occurrences * knowledgeBase.likelihoods(feature)(category)
         }
       }
+      prob /= tokens.size.asInstanceOf[Double];
 
-      results.put(category, logprob)
+      results.put(category, prob)
     }
 
     results.toMap
