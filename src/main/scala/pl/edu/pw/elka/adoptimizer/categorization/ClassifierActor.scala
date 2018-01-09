@@ -15,6 +15,8 @@ object ClassifierActor {
 class ClassifierActor(classifier: TextClassifier, uuid: String)
     extends PersistentActor with ActorLogging {
 
+  private var accuracy: Double = 0D
+
   def classify(sample: Sample, sender: ActorRef): Unit = {
     val res = classifier.classify(sample.content).getOrElse(sample.category, 0D)
     log.info(s"$uuid score: $res")
@@ -22,16 +24,23 @@ class ClassifierActor(classifier: TextClassifier, uuid: String)
   }
 
   override def receiveRecover: Receive = {
-    case SnapshotOffer(_, snapshot) => classifier.load(snapshot)
+    case SnapshotOffer(_, snapshot) => {
+      val state = snapshot.asInstanceOf[(Double, Any)]
+
+      accuracy = state._1
+      classifier.load(state._2)
+    }
   }
 
   override def persistenceId: String = uuid
 
   override def receiveCommand: Receive = {
     case Classify(sample) => classify(sample, sender())
-    case NewModel(acc, state, id) => if(id == uuid) {
+    case NewModel(acc, state, id) => if(id == uuid && acc > accuracy) {
       classifier.load(state)
-      saveSnapshot(classifier.save())
+
+      accuracy = acc
+      saveSnapshot((accuracy, classifier.save()))
     }
   }
 }
