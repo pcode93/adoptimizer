@@ -38,6 +38,7 @@ class ClassifierActor(classifier: TextClassifier, uuid: String)
   override def receiveCommand: Receive = {
     case Classify(sample) => classify(sample, sender())
     case NewModel(acc, state, id) => if (id == uuid && acc > accuracy) {
+      log.info(s"New model with accuracy: $acc")
       classifier.load(state)
 
       accuracy = acc
