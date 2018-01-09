@@ -1,6 +1,6 @@
 package pl.edu.pw.elka.adoptimizer.categorization
 
-import akka.actor.{ Actor, ActorRef, Props }
+import akka.actor.{ Actor, ActorLogging, ActorRef, Props }
 import akka.pattern.ask
 import akka.util.Timeout
 import pl.edu.pw.elka.adoptimizer.categorization.model.Message.{ Classify, Train }
@@ -17,7 +17,7 @@ object EnsembleActor {
   def props: Props = Props[EnsembleActor]
 }
 
-class EnsembleActor(classifiers: EnsemblePart*) extends Actor {
+class EnsembleActor(classifiers: EnsemblePart*) extends Actor with ActorLogging {
   implicit val timeout = Timeout(5 seconds)
   implicit val executionContext = context.dispatcher
 
@@ -38,6 +38,7 @@ class EnsembleActor(classifiers: EnsemblePart*) extends Actor {
   }
 
   def fit(samples: List[Sample]): Unit = {
+    log.info("Sending samples to classifiers")
     classifiers.foreach(_.ref ! Train(samples))
   }
 
