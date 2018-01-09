@@ -1,6 +1,7 @@
 package pl.edu.pw.elka.adoptimizer.categorization.classifier.bayes
 
 import pl.edu.pw.elka.adoptimizer.categorization.model.{ Document, FeatureStats, KnowledgeBase, Sample }
+import pl.edu.pw.elka.adoptimizer.categorization.preprocessing.TextFilter
 import pl.edu.pw.elka.adoptimizer.categorization.tokenizer.Tokenizer
 
 import scala.collection.mutable
@@ -26,13 +27,12 @@ case class BayesianKnowledgeBase(tk: Tokenizer) extends KnowledgeBase {
 
     for (sample <- samples) {
       category = sample.category
-      val example = sample.content
+      val example = TextFilter.complex.filter(sample.content)
 
-      var doc = tokenizer.tokenize(example)
-      doc.category = category
-      dataset += doc
+      dataset += Document(tokenizer.tokenize(example), category)
     }
-    return dataset.toList
+
+    dataset.toList
   }
 
   private def selectFeatures(dataset: List[Document]): FeatureStats = {
@@ -45,7 +45,7 @@ case class BayesianKnowledgeBase(tk: Tokenizer) extends KnowledgeBase {
     val filteredFeatures = stats.featureCategoryJointCount.filter(x => selectedFeatures.contains(x._1))
     stats.featureCategoryJointCount = filteredFeatures
 
-    return stats
+    stats
   }
 
   override def train(samples: List[Sample]): Unit = {

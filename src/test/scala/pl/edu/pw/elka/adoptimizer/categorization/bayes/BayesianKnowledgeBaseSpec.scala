@@ -5,7 +5,7 @@ import org.scalatest.{ BeforeAndAfterAll, Matchers, WordSpec }
 import pl.edu.pw.elka.adoptimizer.categorization.classifier.bayes.BayesianKnowledgeBase
 import pl.edu.pw.elka.adoptimizer.categorization.model.Sample
 import pl.edu.pw.elka.adoptimizer.categorization.preprocessing.Stopwords
-import pl.edu.pw.elka.adoptimizer.categorization.tokenizer.SimpleStemmedTokenizer
+import pl.edu.pw.elka.adoptimizer.categorization.tokenizer.StemmedUnigramTokenizer
 
 import scala.collection.mutable
 import scala.io.Source
@@ -14,7 +14,7 @@ import scala.io.Source
  * Created by leszek on 29/12/2017.
  */
 class BayesianKnowledgeBaseSpec extends WordSpec with Matchers with BeforeAndAfterAll {
-  var testedKB = BayesianKnowledgeBase(new SimpleStemmedTokenizer())
+  var testedKB = BayesianKnowledgeBase(new StemmedUnigramTokenizer(Stopwords.en))
   var samples = mutable.MutableList[Sample]()
   val testFileName = "testSaveBase"
 

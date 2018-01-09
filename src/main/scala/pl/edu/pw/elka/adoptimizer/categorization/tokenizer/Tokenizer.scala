@@ -1,7 +1,11 @@
 package pl.edu.pw.elka.adoptimizer.categorization.tokenizer
 
-import pl.edu.pw.elka.adoptimizer.categorization.model.Document
+import pl.edu.pw.elka.adoptimizer.categorization.tokenizer.Tokenizer.Ngrams
 
-trait Tokenizer {
-  def tokenize(text: String): Document
+object Tokenizer {
+  type Ngrams = Map[String, Int]
+}
+
+trait Tokenizer extends Serializable {
+  def tokenize(text: String): Ngrams
 }

@@ -13,5 +13,9 @@ class TextFilterSpec extends WordSpecLike {
       val test = "test test123&^%$<>: \ntest\"[]{}{}<<<,."
       assert(TextCleaningFilter().filter(test) == "test test \ntest")
     }
+
+    "Convert text to lowercase" in {
+      assert(LowerCaseFilter().filter("TEST TEST") == "test test")
+    }
   }
 }

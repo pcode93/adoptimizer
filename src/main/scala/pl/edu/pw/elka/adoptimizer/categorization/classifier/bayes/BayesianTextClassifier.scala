@@ -2,6 +2,7 @@ package pl.edu.pw.elka.adoptimizer.categorization.classifier.bayes
 
 import pl.edu.pw.elka.adoptimizer.categorization.classifier.TextClassifier
 import pl.edu.pw.elka.adoptimizer.categorization.model.Sample
+import pl.edu.pw.elka.adoptimizer.categorization.preprocessing.TextFilter
 import pl.edu.pw.elka.adoptimizer.categorization.tokenizer.Tokenizer
 
 import scala.collection.mutable
@@ -15,7 +16,7 @@ case class BayesianTextClassifier(tk: Tokenizer) extends TextClassifier {
   var knowledgeBase: BayesianKnowledgeBase = _
 
   override def classify(text: String): Map[String, Double] = {
-    val doc = tk.tokenize(text)
+    val tokens = tk.tokenize(TextFilter.complex.filter(text))
 
     var results = mutable.Map[String, Double]()
 
@@ -23,7 +24,7 @@ case class BayesianTextClassifier(tk: Tokenizer) extends TextClassifier {
       val category = categoryEntry._1
       var logprob = MinValue
 
-      for (featureEntry <- doc.tokens.toSeq) {
+      for (featureEntry <- tokens.toSeq) {
         breakable {
           val feature = featureEntry._1
 

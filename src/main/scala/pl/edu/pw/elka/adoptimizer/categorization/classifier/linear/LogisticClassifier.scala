@@ -5,7 +5,7 @@ import java.util.Date
 
 import pl.edu.pw.elka.adoptimizer.categorization.classifier.TextClassifier
 import pl.edu.pw.elka.adoptimizer.categorization.model.Sample
-import pl.edu.pw.elka.adoptimizer.categorization.preprocessing.{ ComplexTextFilter, TextCleaningFilter, WhitespaceConvertingFilter }
+import pl.edu.pw.elka.adoptimizer.categorization.preprocessing.TextFilter
 import pl.edu.pw.elka.adoptimizer.categorization.vectorizer.Vectorizer
 import weka.classifiers.functions.Logistic
 import weka.core.{ Attribute, DenseInstance, Instances }
@@ -13,8 +13,6 @@ import weka.core.{ Attribute, DenseInstance, Instances }
 import scala.collection.JavaConverters._
 
 class LogisticClassifier(private var vectorizer: Vectorizer, maxIterations: Int = 20) extends TextClassifier {
-  private val textFilter = ComplexTextFilter(WhitespaceConvertingFilter(), TextCleaningFilter())
-
   private var lr: Logistic = _
   private var classIndex: Attribute = _
 
@@ -22,7 +20,7 @@ class LogisticClassifier(private var vectorizer: Vectorizer, maxIterations: Int 
     println(s"${new Date()}: $text")
 
   override def classify(text: String): Map[String, Double] = {
-    val features = vectorizer.vectorize(textFilter.filter(text.toLowerCase)).toArray
+    val features = vectorizer.vectorize(TextFilter.complex.filter(text)).toArray
     val instance = new DenseInstance(1, features)
 
     lr.distributionForInstance(instance)
@@ -37,7 +35,7 @@ class LogisticClassifier(private var vectorizer: Vectorizer, maxIterations: Int 
     lr.setMaxIts(maxIterations)
 
     debug("Building corpus")
-    vectorizer.fit(samples.map(sample => textFilter.filter(sample.content.toLowerCase)))
+    vectorizer.fit(samples.map(sample => TextFilter.complex.filter(sample.content)))
     debug("Done")
 
     val numFeatures = vectorizer.numFeatures + 1
@@ -55,7 +53,7 @@ class LogisticClassifier(private var vectorizer: Vectorizer, maxIterations: Int 
 
     debug("Vectorizing samples")
     samples.foreach(sample => {
-      val vec = vectorizer.vectorize(textFilter.filter(sample.content.toLowerCase))
+      val vec = vectorizer.vectorize(TextFilter.complex.filter(sample.content))
       val instance = new DenseInstance(numFeatures)
       instance.setDataset(instances)
 
